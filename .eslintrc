@@ -1,0 +1,72 @@
+{
+
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": true
+	},
+
+	"extends": "airbnb",
+
+	"parser": "babel-eslint",
+	"parserOptions": {
+		"ecmaFeatures": {
+			"legacyDecorators": true
+		}
+	},
+	"rules": {
+		"array-bracket-spacing": ["error", "always"],
+		"arrow-parens": ["error", "as-needed"],
+		"camelcase": ["error", {
+			"ignoreDestructuring": true,
+			"properties": "never"
+		}],
+		"comma-dangle": 0,
+		"consistent-return": 0, 
+		"curly": ["error","all"],
+		"indent": [2, "tab"],
+		"implicit-arrow-linebreak": 0,
+		"keyword-spacing": ["error", {
+			"after": true,
+			"overrides": {
+				"if": {
+					"after": false
+				},
+				"for": {
+					"after": false
+				},
+				"while": { 
+					"after": false
+				}
+			}
+		}],
+		"max-len": ["error", {
+			"code":120
+		}],
+		"no-bitwise": 0,
+		"no-tabs": 0,
+		"no-console": 0,
+		"no-restricted-syntax": 0,
+		"no-return-assign": 0,
+		"no-param-reassign": ["error", {
+			"props": false
+		}],
+		"no-multiple-empty-lines": ["error", {
+			"max": 1
+		}],
+		"object-curly-newline": ["error", {
+			"ImportDeclaration": "never", 
+			"ExportDeclaration": "always",
+			"ObjectPattern": { "multiline": true }
+		}],
+		"space-in-parens": ["error","always"],
+		"react/no-array-index-key": 0,
+		"react/jsx-indent": [2, "tab"],
+		"react/jsx-indent-props": [2, "tab"],
+		"jsx-quotes": ["error", "prefer-single"],
+		"react/jsx-filename-extension": 0,
+		"react/jsx-one-expression-per-line": 0,
+		"react/forbid-prop-types": 0,
+		"react/require-default-props": 0
+	}
+}
