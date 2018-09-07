@@ -17,12 +17,20 @@ router.get( '/stl/:hash', async ( req, res ) => {
 		if( !row.filepath ) {
 			return res.status( 404 ).json( { error: { status: 404, message: 'not found' } } );
 		}
-		const readStream = fs.createReadStream( row.filepath );
-		readStream.on( 'error', () => {
-			res.status( 410 ).json( { error: { status: 410, message: 'file removed' } } );
-		} );
+		fs.stat( row.filepath, ( error, stat ) => {
+			if( error ) {
+				return console.error( error );
+			}
+			const readStream = fs.createReadStream( row.filepath );
+			readStream.on( 'error', () => {
+				res.status( 410 ).json( { error: { status: 410, message: 'file removed' } } );
+			} );
 
-		readStream.pipe( res );
+			res.set( {
+				'Content-Length': stat.size
+			} );
+			readStream.pipe( res );
+		} );
 	} catch ( error ) {
 		res.status( 404 ).json( { error: { status: 404, message: 'not found' } } );
 	}

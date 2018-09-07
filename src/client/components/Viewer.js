@@ -1,39 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import STLViewer from 'stl-viewer';
-import Loading from './Loading';
-
-function LoadingOrError( { error } ) {
-	if( error ) {
-		return <span className='error'>{error.message}</span>;
-	}
-	return <Loading>Loading File</Loading>;
-}
+import FileLoader from './FileLoader';
 
 export default class Viewer extends React.Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
-			stl: null,
-			error: null
+			stl: null
 		};
 	}
 
-	async componentDidMount() {
-		const { params: { hash } } = this.props;
-		const res = await fetch( `/api/stl/${hash}`, {
-			method: 'GET'
-		} );
-		if( !res.ok ) {
-			try {
-				const { error } = await res.json();
-				this.setState( { error } );
-			} catch ( error ) {
-				this.setState( { error } );
-			}
-			return;
-		}
-		const blob = await res.blob();
+	async handleFileLoad( response ) {
+		const blob = await response.blob();
 		this.setState( { stl: URL.createObjectURL( blob ) } );
 	}
 
@@ -47,27 +26,31 @@ export default class Viewer extends React.Component {
 	}
 
 	render() {
-		const { error, stl } = this.state;
+		const { stl } = this.state;
+		const { params: { hash } } = this.props;
 		return (
 			<div className='viewer-container'>
-				{
-					stl
-						? (
-							<div>
-								<button type='button' onClick={() => this.downloadFile()}>
-									download
-								</button>
-								<STLViewer
-									url={stl}
-									width={500}
-									height={500}
-									modelColor='#cc4444'
-									backgroundColor='#242424'
-									rotate
-									orbitControls
-								/>
-							</div>
-						) : <LoadingOrError error={error} />
+				{ !stl ?
+					<FileLoader
+						url={`/api/stl/${hash}`}
+						onComplete={response => this.handleFileLoad( response )}
+					/> :
+					(
+						<div>
+							<button type='button' onClick={() => this.downloadFile()}>
+								download
+							</button>
+							<STLViewer
+								url={stl}
+								width={500}
+								height={500}
+								modelColor='#cc4444'
+								backgroundColor='#242424'
+								rotate
+								orbitControls
+							/>
+						</div>
+					)
 				}
 			</div>
 		);
@@ -76,8 +59,4 @@ export default class Viewer extends React.Component {
 
 Viewer.propTypes = {
 	params: PropTypes.object
-};
-
-LoadingOrError.propTypes = {
-	error: PropTypes.object
 };

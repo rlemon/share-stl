@@ -13,9 +13,6 @@ function upload( fileHandle ) {
 	fd.set( 'model', fileHandle, 'model.stl' );
 	return fetch( uploadEndpoint, {
 		method: 'POST',
-		// headers: {
-		// 	'Content-Type': 'multipart/form-data'
-		// },
 		body: fd
 	} );
 }
