@@ -1,36 +1,38 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { observable, runInAction } from 'mobx';
+import { observer } from 'mobx-react';
 import STLViewer from 'stl-viewer';
 import FileLoader from './FileLoader';
 
+@observer
 export default class Viewer extends React.Component {
-	constructor( props ) {
-		super( props );
-		this.state = {
-			stl: null
-		};
-	}
+	@observable stl = null;
 
 	async handleFileLoad( response ) {
-		const blob = await response.blob();
-		this.setState( { stl: URL.createObjectURL( blob ) } );
+		try {
+			const blob = await response.blob();
+			runInAction( () => {
+				this.stl = URL.createObjectURL( blob );
+			} );
+		} catch ( error ) {
+			console.error( error );
+		}
 	}
 
 	downloadFile() {
-		const { stl } = this.state;
 		const { params: { hash } } = this.props;
 		const link = document.createElement( 'a' );
-		link.href = stl;
+		link.href = this.stl;
 		link.download = `${hash}.stl`;
 		link.click();
 	}
 
 	render() {
-		const { stl } = this.state;
 		const { params: { hash } } = this.props;
 		return (
 			<div className='viewer-container'>
-				{ !stl ?
+				{ !this.stl ?
 					<FileLoader
 						url={`/api/stl/${hash}`}
 						onComplete={response => this.handleFileLoad( response )}
@@ -41,7 +43,7 @@ export default class Viewer extends React.Component {
 								download
 							</button>
 							<STLViewer
-								url={stl}
+								url={this.stl}
 								width={500}
 								height={500}
 								modelColor='#cc4444'

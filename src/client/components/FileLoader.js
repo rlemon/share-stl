@@ -1,41 +1,47 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { observable, action, runInAction } from 'mobx';
+import { observer } from 'mobx-react';
 import Loading from './Loading';
 import fetchWithProgress from '../utils/fetchWithProgress';
 
+@observer
 export default class FileLoader extends React.Component {
-	constructor( props ) {
-		super( props );
-		this.state = {
-			percentage: 0,
-			error: null
-		};
-	}
+	@observable percentage = 0;
+
+	@observable error = null;
 
 	async componentDidMount() {
-		const { url, onComplete = () => {} } = this.props;
-		const res = await fetchWithProgress( url, {
-			method: 'GET'
-		}, percentage => {
-			this.setState( { percentage } );
-		} );
-		if( !res.ok ) {
-			try {
-				const { error } = await res.json();
-				this.setState( { error } );
-			} catch ( error ) {
-				this.setState( { error } );
+		try {
+			const { url, onComplete = () => {} } = this.props;
+			const res = await fetchWithProgress( url, {
+				method: 'GET'
+			}, action( percentage => {
+				this.percentage = percentage;
+			} ) );
+			if( !res.ok ) {
+				try {
+					const { error } = await res.json();
+					runInAction( () => {
+						this.error = error;
+					} );
+				} catch ( error ) {
+					runInAction( () => {
+						this.error = error;
+					} );
+				}
+			} else {
+				onComplete( res );
 			}
-		} else {
-			onComplete( res );
+		} catch ( error ) {
+			console.error( error );
 		}
 	}
 
 	render() {
-		const { percentage, error } = this.state;
-		const message = error ?
-			<span>{error.message}</span> :
-			<span>Loading file. {Math.round( percentage * 100 )}%</span>;
+		const message = this.error ?
+			<span>{this.error.message}</span> :
+			<span>Loading file. {Math.round( this.percentage * 100 )}%</span>;
 		return (
 			<Loading>
 				{message}
