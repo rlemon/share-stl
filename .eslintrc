@@ -20,7 +20,7 @@
 		"camelcase": ["error", {
 			"ignoreDestructuring": true,
 			"properties": "never"
-		}],
+    }],
 		"comma-dangle": 0,
 		"consistent-return": 0, 
 		"curly": ["error","all"],
